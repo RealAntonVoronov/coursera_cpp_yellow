@@ -7,7 +7,13 @@ using namespace std;
 class Person {
 public:
     Person (const string& name, const string& type) : Name(name), Type(type){};
-    virtual void Walk(const string& destination) const = 0;
+    void Log() const {
+        cout << Type << ": " << Name;
+    }
+    virtual void Walk(const string& destination) const {
+        Log();
+        cout << " walks to: " << destination << endl;
+    }
     string GetName() const {
         return Name;
     }
@@ -17,22 +23,22 @@ public:
 private:
     const string Name, Type;
 };
-void PersonWalk(const string& type, const string& name, const string& destination){
-    cout << type << ": " << name << " walks to: " << destination << endl;
-}
 class Student : public Person {
 public:
     Student(const string& name, const string& favouriteSong) : Person(name, "Student"),
                                                                FavouriteSong(favouriteSong) {
     };
     void Learn() const {
-        cout << GetType() << ": " << GetName() << " learns" << endl;
+        Log();
+        cout << " learns" << endl;
     }
     void SingSong() const {
-        cout << GetType() << ": " << GetName() << " sings a song: " << FavouriteSong << endl;
+        Log();
+        cout << " sings a song: " << FavouriteSong << endl;
     }
     void Walk(const string& destination) const override {
-        PersonWalk(GetType(), GetName(), destination);
+        Log();
+        cout << " walks to: " << destination << endl;
         SingSong();
     }
 private:
@@ -41,11 +47,8 @@ private:
 class Teacher : public Person {
 public:
     Teacher(const string& name, const string& subject) : Person(name, "Teacher"), Subject(subject){};
-    void Teach() {
+    void Teach() const {
         cout << GetType() << ": " << GetName() << " teaches: " << Subject << endl;
-    }
-    void Walk(const string& destination) const override {
-        PersonWalk(GetType(), GetName(), destination);
     }
 private:
     string Subject;
@@ -53,17 +56,15 @@ private:
 class Policeman : public Person {
 public:
     Policeman(const string& name) : Person(name, "Policeman"){};
-    void Check(shared_ptr<Person> p){
-        cout << GetType() << ": " << GetName() << " checks " << p->GetType() << ". " << p->GetType()
-             << "'s name is: " << p->GetName() << endl;
-    }
-    void Walk(const string& destination) const override {
-        PersonWalk(GetType(), GetName(), destination);
+    void Check(const Person& p) const {
+        Log();
+        cout << " checks " << p.GetType() << ". " << p.GetType()
+             << "'s name is: " << p.GetName() << endl;
     }
 };
-void VisitPlaces(shared_ptr<Person> p, vector<string> places){
+void VisitPlaces(const Person& p, vector<string> places){
     for (const string& x : places){
-        p->Walk(x);
+        p.Walk(x);
     }
 }
 int main() {
@@ -71,8 +72,8 @@ int main() {
     Student s("Ann", "We will rock you");
     Policeman p("Bob");
 
-    VisitPlaces(make_shared<Teacher>(t), {"Moscow", "London"});
-    p.Check(make_shared<Student>(s));
-    VisitPlaces(make_shared<Student>(s), {"Moscow", "London"});
+    VisitPlaces(t, {"Moscow", "London"});
+    p.Check(s);
+    VisitPlaces(s, {"Moscow", "London"});
     return 0;
 }
